@@ -1,0 +1,26 @@
+<html>
+
+<head>
+	<title>WebGL - Canvas test</title>
+	<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+
+	<script type="text/javascript" src="glMatrix.js"></script>
+	<script type="text/javascript" src="callbacks.js"></script>
+	<script type="text/javascript" src="glCourseBasis.js"></script>
+	<script type="text/javascript" src="objLoader.js"></script>
+
+</head>
+
+
+<body onload="webGLStart();">
+	<canvas id="WebGL-test" style="border:none;" width="1600" height="900"></canvas>
+	<br><br>
+	<select id="selectedObject" onchange="selectObject();">
+		<option value="Bunny" selected>Bunny</option>
+		<option value="Mustang">Mustang</option>
+		<option value="Porsche">Porsche</option>
+		<option value="Sphere">Sphere</option>
+</body>
+
+
+</html>
