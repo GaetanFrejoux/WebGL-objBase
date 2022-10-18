@@ -16,6 +16,7 @@ var SPHERE = null;
 var PLANE = null;
 var SKYBOX = null;
 var SELECTED = null;
+var FRESNELVALUE = 1.0;
 // =====================================================
 // OBJET 3D, lecture fichier obj
 // =====================================================
@@ -51,6 +52,11 @@ class objmesh {
 		this.shader.rMatrixUniform = gl.getUniformLocation(this.shader, "uRMatrix");
 		this.shader.mvMatrixUniform = gl.getUniformLocation(this.shader, "uMVMatrix");
 		this.shader.pMatrixUniform = gl.getUniformLocation(this.shader, "uPMatrix");
+
+		//mirroir
+		this.shader.skybox = gl.getUniformLocation(this.shader, "skybox");
+		this.shader.rIRotationUniform = gl.getUniformLocation(this.shader, "uIRotationMatrix");
+
 	}
 
 	// --------------------------------------------
@@ -61,6 +67,11 @@ class objmesh {
 		gl.uniformMatrix4fv(this.shader.rMatrixUniform, false, rotMatrix);
 		gl.uniformMatrix4fv(this.shader.mvMatrixUniform, false, mvMatrix);
 		gl.uniformMatrix4fv(this.shader.pMatrixUniform, false, pMatrix);
+
+		//mirroir
+		gl.uniform1i(this.shader.skybox, 0);
+		gl.uniformMatrix4fv(this.shader.rIRotationUniform, false, mat4.inverse(rotMatrix));
+		mat4.inverse(rotMatrix);
 	}
 
 	// --------------------------------------------
@@ -174,47 +185,47 @@ class skybox {
 		this.shader = null;
 		this.vertices = [
 			// positions          
-			-size,  size, -size,
+			-size, size, -size,
 			-size, -size, -size,
-			 size, -size, -size,
-			 size, -size, -size,
-			 size,  size, -size,
-			-size,  size, -size,
-	
-			-size, -size,  size,
+			size, -size, -size,
+			size, -size, -size,
+			size, size, -size,
+			-size, size, -size,
+
+			-size, -size, size,
 			-size, -size, -size,
-			-size,  size, -size,
-			-size,  size, -size,
-			-size,  size,  size,
-			-size, -size,  size,
-	
-			 size, -size, -size,
-			 size, -size,  size,
-			 size,  size,  size,
-			 size,  size,  size,
-			 size,  size, -size,
-			 size, -size, -size,
-	
-			-size, -size,  size,
-			-size,  size,  size,
-			 size,  size,  size,
-			 size,  size,  size,
-			 size, -size,  size,
-			-size, -size,  size,
-	
-			-size,  size, -size,
-			 size,  size, -size,
-			 size,  size,  size,
-			 size,  size,  size,
-			-size,  size,  size,
-			-size,  size, -size,
-	
+			-size, size, -size,
+			-size, size, -size,
+			-size, size, size,
+			-size, -size, size,
+
+			size, -size, -size,
+			size, -size, size,
+			size, size, size,
+			size, size, size,
+			size, size, -size,
+			size, -size, -size,
+
+			-size, -size, size,
+			-size, size, size,
+			size, size, size,
+			size, size, size,
+			size, -size, size,
+			-size, -size, size,
+
+			-size, size, -size,
+			size, size, -size,
+			size, size, size,
+			size, size, size,
+			-size, size, size,
+			-size, size, -size,
+
 			-size, -size, -size,
-			-size, -size,  size,
-			 size, -size, -size,
-			 size, -size, -size,
-			-size, -size,  size,
-			 size, -size,  size
+			-size, -size, size,
+			size, -size, -size,
+			size, -size, -size,
+			-size, -size, size,
+			size, -size, size
 		];
 		this.initAll();
 	}
@@ -234,22 +245,20 @@ class skybox {
 			{ url: 'textures/back.jpg', target: gl.TEXTURE_CUBE_MAP_NEGATIVE_Z }
 		];
 
-		// set images
+
 		for (var i = 0; i < 6; i++) {
 			var face = faces[i];
 			var image = new Image();
 			image.onload = function (face, image, i) {
 				return function () {
 					gl.texImage2D(face.target, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-					if (i == 5) {
-						gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
-					}
+					gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
 				};
-			}
-			( face, image, i);
+			}(face, image, i);
 			image.src = face.url;
-
 		}
+
+
 
 
 		// set buffers
@@ -270,10 +279,10 @@ class skybox {
 		gl.enableVertexAttribArray(this.shader.vAttrib);
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.vBuffer);
 		gl.vertexAttribPointer(this.shader.vAttrib, this.vBuffer.itemSize, gl.FLOAT, false, 0, 0);
-		
+
 		//set uniforms
 		this.shader.textureLocation = gl.getUniformLocation(this.shader, "skybox");
-		this.shader.pMatrixUniform  = gl.getUniformLocation(this.shader, "uPMatrix");
+		this.shader.pMatrixUniform = gl.getUniformLocation(this.shader, "uPMatrix");
 		this.shader.mvMatrixUniform = gl.getUniformLocation(this.shader, "uMVMatrix");
 
 		mat4.identity(mvMatrix);
@@ -293,7 +302,7 @@ class skybox {
 		if (this.shader) {
 			this.setShadersParams();
 			gl.drawArrays(gl.TRIANGLES, 0, this.vBuffer.numItems);
-		}		
+		}
 	}
 }
 
@@ -439,6 +448,12 @@ function selectObject() {
 	}
 }
 
+
+function setFresnel() {
+	var fresnel = document.getElementById("fresnel");
+	FRESNELVALUE = parseFloat(fresnel.value);
+	document.getElementById("fresnelValue").innerHTML = "Fresnel: " + FRESNELVALUE;
+}	
 // =====================================================
 function drawScene() {
 	gl.clear(gl.COLOR_BUFFER_BIT);
