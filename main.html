@@ -13,18 +13,21 @@
 
 
 <body onload="webGLStart();">
-	<canvas id="WebGL-test" style="border:none;" width="1600" height="900"></canvas>
-	<br><br>
-	<select id="selectedObject" onchange="selectObject();">
-		<option value="Bunny" selected>Bunny</option>
-		<option value="Mustang">Mustang</option>
-		<option value="Porsche">Porsche</option>
-		<option value="Sphere">Sphere</option>
-	</select>
-	<br><br>
-	<input id="fresnel" type="range" min="0" max="3" step="0.01" value="1.0" oninput="setFresnel();" onchange="setFresnel();">
-	<p id="fresnelValue">Fresnel: 1.0</p>
-	<br><br>
+	<canvas id="WebGL-test" style="border:none;" width="800" height="600"></canvas>
+	<div style="position:absolute; top:20px; left:20px; z-index:0; background-color: grey; padding: 8px; border-radius: 4px;">
+		<select id="selectedObject" onchange="selectObject();">
+			<option value="Bunny" selected>Bunny</option>
+			<option value="Mustang">Mustang</option>
+			<option value="Porsche">Porsche</option>
+			<option value="Sphere">Sphere</option>
+		</select>
+		<br/>
+		<br/>
+		<input id="fresnel" type="range" min="0" max="3" step="0.01" value="1.0" oninput="setFresnel();"
+			onchange="setFresnel();">
+		<p id="fresnelValue">Fresnel: 1.0</p>
+	</div>
+
 </body>
 
 
